@@ -40,7 +40,7 @@ class App extends BaseConfig
      * something else. If you have configured your web server to remove this file
      * from your site URIs, set this variable to an empty string.
      */
-    public string $indexPage = 'index.php';
+    public string $indexPage = '';
 
     /**
      * --------------------------------------------------------------------------
@@ -199,4 +199,14 @@ class App extends BaseConfig
      * @see http://www.w3.org/TR/CSP/
      */
     public bool $CSPEnabled = false;
+
+    
+    // 세션 유지시간을 30분(1800초)으로 설정
+    public $sessionExpiration = 1800; // 30분 * 60초
+    
+    // 세션 재생성 시간 (보안을 위해)
+    public $sessionRegenerateDestroy = false;
+    
+    // 세션 시간 갱신 설정
+    public $sessionTimeToUpdate = 300; // 5분마다 세션 ID 재생성    
 }
