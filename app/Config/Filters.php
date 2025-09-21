@@ -12,6 +12,9 @@ use CodeIgniter\Filters\InvalidChars;
 use CodeIgniter\Filters\PageCache;
 use CodeIgniter\Filters\PerformanceMetrics;
 use CodeIgniter\Filters\SecureHeaders;
+use App\Filters\AuthFilter;
+use App\Filters\GuestFilter;
+use App\Filters\RateLimitFilter;
 
 class Filters extends BaseFilters
 {
@@ -34,6 +37,9 @@ class Filters extends BaseFilters
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
+        'auth'          => AuthFilter::class,
+        'guest'         => GuestFilter::class,
+        'ratelimit'     => RateLimitFilter::class,
     ];
 
     /**
@@ -73,12 +79,11 @@ class Filters extends BaseFilters
     public array $globals = [
         'before' => [
             // 'honeypot',
-            // 'csrf',
             // 'invalidchars',
         ],
         'after' => [
             // 'honeypot',
-            // 'secureheaders',
+            'secureheaders',
         ],
     ];
 
@@ -95,7 +100,9 @@ class Filters extends BaseFilters
      *
      * @var array<string, list<string>>
      */
-    public array $methods = [];
+    public array $methods = [
+        'POST' => ['csrf' => ['except' => ['session/check', 'session/extend', 'session/update-activity']]]
+    ];
 
     /**
      * List of filter aliases that should run on any
@@ -106,5 +113,31 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    public array $filters = [
+        'auth' => [
+            'before' => [
+                'dashboard/*',
+                'profile/*',
+                'admin/*'
+            ]
+        ],
+        // 'guest' => [
+        //     'before' => [
+        //         'login',
+        //         'register'
+        //     ]
+        // ],
+        // 'ratelimit' => [
+        //     'before' => [
+        //         'login/authenticate'
+        //     ]
+        // ],
+        // 'csrf' => [
+        //     'before' => [
+        //         'login/authenticate',
+        //         'register/process',
+        //         'logout'
+        //     ]
+        // ]
+    ];
 }

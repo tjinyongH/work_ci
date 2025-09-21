@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인 - CI4 Auth</title>
+    <title>회원가입 - CI4 Auth</title>
     <style>
         * {
             margin: 0;
@@ -21,19 +21,19 @@
             padding: 20px;
         }
 
-        .login-container {
+        .register-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             padding: 40px;
             width: 100%;
-            max-width: 400px;
+            max-width: 450px;
             position: relative;
             overflow: hidden;
         }
 
-        .login-container::before {
+        .register-container::before {
             content: '';
             position: absolute;
             top: 0;
@@ -43,19 +43,19 @@
             background: linear-gradient(90deg, #667eea, #764ba2);
         }
 
-        .login-header {
+        .register-header {
             text-align: center;
             margin-bottom: 30px;
         }
 
-        .login-header h1 {
+        .register-header h1 {
             color: #333;
             font-size: 28px;
             font-weight: 700;
             margin-bottom: 8px;
         }
 
-        .login-header p {
+        .register-header p {
             color: #666;
             font-size: 14px;
         }
@@ -102,7 +102,7 @@
             font-size: 18px;
         }
 
-        .login-btn {
+        .register-btn {
             width: 100%;
             padding: 14px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -116,30 +116,30 @@
             margin-top: 10px;
         }
 
-        .login-btn:hover {
+        .register-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
         }
 
-        .login-btn:active {
+        .register-btn:active {
             transform: translateY(0);
         }
 
-        .register-link {
+        .login-link {
             text-align: center;
             margin-top: 25px;
             padding-top: 20px;
             border-top: 1px solid #e1e5e9;
         }
 
-        .register-link a {
+        .login-link a {
             color: #667eea;
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s ease;
         }
 
-        .register-link a:hover {
+        .login-link a:hover {
             color: #764ba2;
         }
 
@@ -162,6 +162,31 @@
             color: #363;
             border: 1px solid #cfc;
         }
+
+        .password-strength {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .strength-indicator {
+            height: 4px;
+            background: #e1e5e9;
+            border-radius: 2px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak { background: #ff4757; }
+        .strength-medium { background: #ffa502; }
+        .strength-strong { background: #2ed573; }
 
         @keyframes slideDown {
             from {
@@ -200,22 +225,22 @@
         }
 
         @media (max-width: 480px) {
-            .login-container {
+            .register-container {
                 padding: 30px 20px;
                 margin: 10px;
             }
             
-            .login-header h1 {
+            .register-header h1 {
                 font-size: 24px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <h1>로그인</h1>
-            <p>계정에 로그인하여 시작하세요</p>
+    <div class="register-container">
+        <div class="register-header">
+            <h1>회원가입</h1>
+            <p>새로운 계정을 생성하여 시작하세요</p>
         </div>
 
         <?php if(session()->getFlashdata('error')): ?>
@@ -230,21 +255,49 @@
             </div>
         <?php endif; ?>
 
-        <form method="post" action="/login/authenticate" id="loginForm">
+        <?php if(session()->getFlashdata('validation_errors')): ?>
+            <div class="alert alert-error">
+                <ul style="margin: 0; padding-left: 20px;">
+                    <?php foreach(session()->getFlashdata('validation_errors') as $error): ?>
+                        <li><?= $error ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <form method="post" action="/register/process" id="registerForm">
             <?= csrf_field() ?>
             
             <div class="form-group">
-                <label for="identifier">이메일 또는 사용자명</label>
+                <label for="username">사용자명</label>
                 <div class="input-wrapper">
                     <div class="icon">👤</div>
                     <input 
                         type="text" 
-                        id="identifier" 
-                        name="identifier" 
-                        placeholder="이메일 또는 사용자명을 입력하세요"
-                        value="<?= esc(old('identifier') ?? '') ?>"
+                        id="username" 
+                        name="username" 
+                        placeholder="사용자명을 입력하세요 (3-50자)"
+                        value="<?= esc(old('username') ?? '') ?>"
                         required
+                        minlength="3"
+                        maxlength="50"
                         autocomplete="username"
+                    >
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">이메일</label>
+                <div class="input-wrapper">
+                    <div class="icon">📧</div>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="이메일 주소를 입력하세요"
+                        value="<?= esc(old('email') ?? '') ?>"
+                        required
+                        autocomplete="email"
                     >
                 </div>
             </div>
@@ -257,29 +310,95 @@
                         type="password" 
                         id="password" 
                         name="password" 
-                        placeholder="비밀번호를 입력하세요"
+                        placeholder="비밀번호를 입력하세요 (최소 6자)"
                         required
-                        autocomplete="current-password"
+                        minlength="6"
+                        autocomplete="new-password"
+                    >
+                </div>
+                <div class="password-strength" id="passwordStrength">
+                    비밀번호 강도를 확인하세요
+                </div>
+                <div class="strength-indicator">
+                    <div class="strength-bar" id="strengthBar"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password_confirm">비밀번호 확인</label>
+                <div class="input-wrapper">
+                    <div class="icon">🔐</div>
+                    <input 
+                        type="password" 
+                        id="password_confirm" 
+                        name="password_confirm" 
+                        placeholder="비밀번호를 다시 입력하세요"
+                        required
+                        autocomplete="new-password"
                     >
                 </div>
             </div>
 
-            <button type="submit" class="login-btn" id="loginBtn">
+            <button type="submit" class="register-btn" id="registerBtn">
                 <div class="loading"></div>
-                <span class="btn-text">로그인</span>
+                <span class="btn-text">회원가입</span>
             </button>
         </form>
 
-        <div class="register-link">
-            <p>계정이 없으신가요? <a href="/register">회원가입</a></p>
+        <div class="login-link">
+            <p>이미 계정이 있으신가요? <a href="/login">로그인</a></p>
         </div>
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function() {
-            const btn = document.getElementById('loginBtn');
+        document.getElementById('registerForm').addEventListener('submit', function() {
+            const btn = document.getElementById('registerBtn');
             btn.classList.add('btn-loading');
-            btn.querySelector('.btn-text').textContent = '로그인 중...';
+            btn.querySelector('.btn-text').textContent = '가입 중...';
+        });
+
+        // 비밀번호 강도 체크
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthText = document.getElementById('passwordStrength');
+            const strengthBar = document.getElementById('strengthBar');
+            
+            let strength = 0;
+            let strengthLabel = '';
+            let strengthClass = '';
+
+            if (password.length >= 6) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+            if (strength < 2) {
+                strengthLabel = '약함';
+                strengthClass = 'strength-weak';
+            } else if (strength < 4) {
+                strengthLabel = '보통';
+                strengthClass = 'strength-medium';
+            } else {
+                strengthLabel = '강함';
+                strengthClass = 'strength-strong';
+            }
+
+            strengthText.textContent = `비밀번호 강도: ${strengthLabel}`;
+            strengthBar.className = `strength-bar ${strengthClass}`;
+            strengthBar.style.width = `${(strength / 5) * 100}%`;
+        });
+
+        // 비밀번호 확인 체크
+        document.getElementById('password_confirm').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            
+            if (confirmPassword && password !== confirmPassword) {
+                this.style.borderColor = '#ff4757';
+            } else {
+                this.style.borderColor = '#e1e5e9';
+            }
         });
 
         // 입력 필드 포커스 효과
@@ -296,7 +415,7 @@
         // 엔터키로 폼 제출
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                document.getElementById('loginForm').submit();
+                document.getElementById('registerForm').submit();
             }
         });
     </script>

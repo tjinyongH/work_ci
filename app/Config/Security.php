@@ -7,80 +7,78 @@ use CodeIgniter\Config\BaseConfig;
 class Security extends BaseConfig
 {
     /**
-     * --------------------------------------------------------------------------
-     * CSRF Protection Method
-     * --------------------------------------------------------------------------
-     *
-     * Protection Method for Cross Site Request Forgery protection.
-     *
-     * @var string 'cookie' or 'session'
+     * CSRF 보호 활성화 여부
      */
-    public string $csrfProtection = 'cookie';
+    public bool $csrfProtection = true;
 
     /**
-     * --------------------------------------------------------------------------
-     * CSRF Token Randomization
-     * --------------------------------------------------------------------------
-     *
-     * Randomize the CSRF Token for added security.
-     */
-    public bool $tokenRandomize = false;
-
-    /**
-     * --------------------------------------------------------------------------
-     * CSRF Token Name
-     * --------------------------------------------------------------------------
-     *
-     * Token name for Cross Site Request Forgery protection.
+     * CSRF 토큰 이름
      */
     public string $tokenName = 'csrf_test_name';
 
     /**
-     * --------------------------------------------------------------------------
-     * CSRF Header Name
-     * --------------------------------------------------------------------------
-     *
-     * Header name for Cross Site Request Forgery protection.
+     * CSRF 헤더 이름
      */
     public string $headerName = 'X-CSRF-TOKEN';
 
     /**
-     * --------------------------------------------------------------------------
-     * CSRF Cookie Name
-     * --------------------------------------------------------------------------
-     *
-     * Cookie name for Cross Site Request Forgery protection.
+     * CSRF 쿠키 이름
      */
     public string $cookieName = 'csrf_cookie_name';
 
     /**
-     * --------------------------------------------------------------------------
-     * CSRF Expires
-     * --------------------------------------------------------------------------
-     *
-     * Expiration time for Cross Site Request Forgery protection cookie.
-     *
-     * Defaults to two hours (in seconds).
+     * CSRF 토큰 만료 시간 (초)
      */
     public int $expires = 7200;
 
     /**
-     * --------------------------------------------------------------------------
-     * CSRF Regenerate
-     * --------------------------------------------------------------------------
-     *
-     * Regenerate CSRF Token on every submission.
+     * CSRF 토큰 재생성 여부
      */
     public bool $regenerate = true;
 
     /**
-     * --------------------------------------------------------------------------
-     * CSRF Redirect
-     * --------------------------------------------------------------------------
-     *
-     * Redirect to previous page with error on failure.
-     *
-     * @see https://codeigniter4.github.io/userguide/libraries/security.html#redirection-on-failure
+     * CSRF 토큰 랜덤화 여부
      */
-    public bool $redirect = (ENVIRONMENT === 'production');
+    public bool $tokenRandomize = false;
+
+    /**
+     * CSRF 리다이렉트 URL
+     */
+    public string $redirect = '';
+
+    /**
+     * CSRF 쿠키의 SameSite 속성
+     */
+    public string $sameSite = 'Lax';
+
+    /**
+     * 비밀번호 해싱 설정
+     */
+    public array $passwordHashing = [
+        'algorithm' => PASSWORD_DEFAULT,
+        'cost' => 12,
+        'memory_cost' => 65536,
+        'time_cost' => 4,
+        'threads' => 3,
+    ];
+
+    /**
+     * 로그인 시도 제한 설정
+     */
+    public array $loginAttempts = [
+        'max_attempts' => 5,
+        'lockout_duration' => 900, // 15분
+        'reset_duration' => 3600,  // 1시간
+    ];
+
+    /**
+     * 세션 보안 설정
+     */
+    public array $sessionSecurity = [
+        'regenerate_id' => true,
+        'regenerate_interval' => 300, // 5분
+        'httponly' => true,
+        'secure' => false, // HTTPS 환경에서는 true로 설정
+        'samesite' => 'Lax',
+    ];
 }
